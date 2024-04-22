@@ -17,7 +17,9 @@ const useAssistant = (assistant_key: string) => {
   return openai.beta.assistants.retrieve(assistant_key);
 };
 
-const createThread = () => {};
+const createThread = () => {
+  return openai.beta.threads.create();
+};
 
 const useThread = (thread_id: string) => {
   return openai.beta.threads.retrieve(thread_id);

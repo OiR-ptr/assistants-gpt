@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     const assistant = await useAssistant(hatId);
     console.log(assistant.id);
 
-    const thread = await useThread("<<DIALOG_THREAD_ID>>");
+    const thread = await createThread();
     console.log(thread.id);
 
     const rep = await reply(thread.id, assistant.id, body.prompt);
