@@ -17,6 +17,8 @@ Replace the placeholder
 
 ### nuxt.config.ts
 
+Replace the [OpenAI API Key](https://platform.openai.com/api-keys)
+
 ```Diff
 runtimeConfig: {
 +  openai_apikey: "<<YOUR OPENAI API KEY>>"
@@ -25,6 +27,8 @@ runtimeConfig: {
 ```
 
 ### server/utils/sixhat.ts
+
+Replace the [OpenAI Assistant ID](https://platform.openai.com/assistants)
 
 ```Diff
 const getAssistantId = (hat: SixHats) => {
