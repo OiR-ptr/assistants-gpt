@@ -1,21 +1,10 @@
 import { reply, useAssistant } from "../utils/gpts";
-import { SixHats } from "../utils/sixhat";
+import { SixHats, getAssistantId } from "../utils/sixhat";
 
 interface SixhatRequest {
   color: SixHats,
   prompt: string,
 }
-
-const getAssistantId = (hat: SixHats) => {
-  switch(hat) {
-    case SixHats.BlackHat: return "<<ASSISTANT_ID_BLACKHAT>>";
-    case SixHats.BlueHat: return "<<ASSISTANT_ID_BLUEHAT>>";
-    case SixHats.GreenHat: return "<<ASSISTANT_ID_GREENHAT>>";
-    case SixHats.RedHat: return "<<ASSISTANT_ID_REDHAT>>";
-    case SixHats.WhiteHat: return "<<ASSISTANT_ID_WHITEHAT>>";
-    case SixHats.YellowHat: return "<<ASSISTANT_ID_YELLOWHAT>>";
-  }
-};
 
 export default defineEventHandler(async (event) => {
   try {
