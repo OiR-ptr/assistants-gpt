@@ -2,22 +2,54 @@
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+## Dependencies install
 
 Make sure to install the dependencies:
 
 ```bash
 # npm
 npm install
+```
 
-# pnpm
-pnpm install
+## Setup
 
-# yarn
-yarn install
+Replace the placeholder
 
-# bun
-bun install
+### nuxt.config.ts
+
+```Diff
+runtimeConfig: {
++  openai_apikey: "<<YOUR OPENAI API KEY>>"
+-  openai_apikey: "sk-lBTs...",
+},
+```
+
+### server/utils/sixhat.ts
+
+```Diff
+const getAssistantId = (hat: SixHats) => {
+  switch(hat) {
++    case SixHats.BlackHat: return "asst_US...";
++    case SixHats.BlueHat: return "asst_GG...";
++    case SixHats.GreenHat: return "asst_vI...";
++    case SixHats.RedHat: return "asst_Oa...";
++    case SixHats.WhiteHat: return "asst_hq...";
++    case SixHats.YellowHat: return "asst_RI...";
+-    case SixHats.BlackHat: return "<<ASSISTANT_ID_BLACKHAT>>";
+-    case SixHats.BlueHat: return "<<ASSISTANT_ID_BLUEHAT>>";
+-    case SixHats.GreenHat: return "<<ASSISTANT_ID_GREENHAT>>";
+-    case SixHats.RedHat: return "<<ASSISTANT_ID_REDHAT>>";
+-    case SixHats.WhiteHat: return "<<ASSISTANT_ID_WHITEHAT>>";
+-    case SixHats.YellowHat: return "<<ASSISTANT_ID_YELLOWHAT>>";
+  }
+};
+```
+
+### Ignore git tracking
+
+```bash
+git update-index --assume-unchanged nuxt.config.ts
+git update-index --assume-unchanged server/utils/sixhat.ts
 ```
 
 ## Development Server
@@ -27,15 +59,6 @@ Start the development server on `http://localhost:3000`:
 ```bash
 # npm
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
 ## Production
@@ -45,15 +68,6 @@ Build the application for production:
 ```bash
 # npm
 npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
 Locally preview production build:
@@ -61,15 +75,6 @@ Locally preview production build:
 ```bash
 # npm
 npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
