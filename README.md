@@ -52,8 +52,8 @@ const getAssistantId = (hat: SixHats) => {
 ### Ignore git tracking
 
 ```bash
-git update-index --assume-unchanged nuxt.config.ts
-git update-index --assume-unchanged server/utils/sixhat.ts
+git update-index --skip-worktree nuxt.config.ts
+git update-index --skip-worktree server/utils/sixhat.ts
 ```
 
 ## Development Server
