@@ -2,8 +2,8 @@
 const { data } = await useFetch("/api/sixhat", {
   method: "POST",
   body: {
-    color: "Black",
-    prompt: "日本には四季があってよいですね",
+    color: "Yellow",
+    prompt: "今日はどこかに行こうかな、水天宮とかどうでしょうか。夕方の天気次第ですけど博多天神にも行きたいです。",
   },
 });
 </script>
@@ -11,7 +11,9 @@ const { data } = await useFetch("/api/sixhat", {
 <template>
   <main>
     <Suspense>
-      <pre>{{ data }}</pre>
+      <pre v-for="message in data?.hello">
+        {{ message }}
+      </pre>
     </Suspense>
   </main>
 </template>
