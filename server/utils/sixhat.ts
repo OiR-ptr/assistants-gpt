@@ -5,6 +5,7 @@ enum SixHats {
   BlackHat = "Black",
   GreenHat = "Green",
   YellowHat = "Yellow",
+  SuperFast = "Fast"
 }
 
 const getAssistantId = (hat: SixHats) => {
