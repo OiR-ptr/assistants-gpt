@@ -55,6 +55,21 @@ const handleRequiresAction = async (threadId: string, run: Run) => {
   return rerun;
 }
 
+const restoreThread = async (threadId: string, limit: number) => {
+  const messages = await openai.beta.threads.messages.list(threadId, {limit});
+  return messages.data.flatMap(message => {
+    const [content] = message.content;
+    if(content.type === 'text') {
+      return {
+        role: message.role,
+        text: content.text.value,
+      };
+    }
+
+    return [];
+  }).reverse();
+}
+
 const reply = async (threadId: string, assistantId: string, prompt: string) => {
   openai.beta.threads.messages.create(threadId, {
     role: "user",
@@ -91,4 +106,5 @@ export {
   createThread,
   useThread,
   reply,
+  restoreThread,
 }

@@ -1,18 +1,42 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: "with-navigation"
+  layout: "with-navigation",
 });
 
-const threadId: Ref<string|undefined> = ref(undefined);
-const newMessage = ref('');
-const messages: Array<{text: string, isMine: boolean}> = reactive([
-]);
+const { pushThreads } = useChatThreads();
+const { chatThreads } = storeToRefs(useChatThreads());
+const threads = computed(() => {
+  return chatThreads.value.map((chat) => {
+    return {
+      label: chat,
+      icon: 'i-heroicons-chat-bubble-oval-left',
+      click: async () => {
+        threadId.value = chat;
+
+        const { data } = await useFetch(`/api/sixhat?thread_id=${threadId.value}`, {
+          method: "get",
+        });
+
+        messages.splice(0, messages.length, ...data.value?.messages?.map(msg => {
+          return {
+            text: msg.text,
+            isMine: msg.role == "user",
+          };
+        }) ?? []);
+      }
+    };
+  });
+});
+
+const threadId: Ref<string | undefined> = ref(undefined);
+const newMessage = ref("");
+const messages: Array<{ text: string; isMine: boolean }> = reactive([]);
 
 const sendMessage = async () => {
-  if (newMessage.value.trim() !== '') {
+  if (newMessage.value.trim() !== "") {
     const message = newMessage.value;
     messages.push({ text: message, isMine: true });
-    newMessage.value = '';
+    newMessage.value = "";
 
     const { data: reply } = await useFetch("/api/sixhat", {
       method: "POST",
@@ -20,27 +44,40 @@ const sendMessage = async () => {
         color: "Fast",
         prompt: message,
         threadId: threadId.value,
-      }
+      },
     });
     threadId.value = reply.value?.threadId;
+    if(!chatThreads.value.includes(threadId.value!)) {
+      pushThreads(threadId.value!);
+    }
 
     messages.push({ text: reply.value?.replies[0] ?? "", isMine: false });
   }
-}
+};
 </script>
 
 <template>
-  <div class="chat-container">
-    <div class="messages">
-      <div v-for="(message, index) in messages" :key="index" class="message">
-        <div :class="{'my-message': message.isMine, 'other-message': !message.isMine}">
-          {{ message.text }}
+  <div class="flex">
+    <nav class="w-1/6">
+      <UVerticalNavigation :links="threads" />
+    </nav>
+    <div class="w-full chat-container">
+      <div class="messages">
+        <div v-for="(message, index) in messages" :key="index" class="message">
+          <div
+            :class="{
+              'my-message': message.isMine,
+              'other-message': !message.isMine,
+            }"
+          >
+            {{ message.text }}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="input-area flex justify-center">
-      <UInput v-model="newMessage" placeholder="メッセージを入力" />
-      <UButton @click="sendMessage">送信</UButton>
+      <div class="input-area flex justify-center">
+        <UInput v-model="newMessage" placeholder="メッセージを入力" />
+        <UButton @click="sendMessage">送信</UButton>
+      </div>
     </div>
   </div>
 </template>
@@ -63,14 +100,14 @@ const sendMessage = async () => {
 }
 .my-message {
   align-self: flex-end;
-  background-color: #DCF8C6;
+  background-color: #dcf8c6;
   color: black;
   padding: 8px 16px;
   border-radius: 20px;
 }
 .other-message {
   align-self: flex-start;
-  background-color: #ECECEC;
+  background-color: #ececec;
   color: black;
   padding: 8px 16px;
   border-radius: 20px;
