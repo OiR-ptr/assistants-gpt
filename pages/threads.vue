@@ -39,7 +39,7 @@ const sendMessage = async () => {
     newMessage.value = "";
 
     const { data: reply } = await useFetch("/api/sixhat", {
-      method: "POST",
+      method: "post",
       body: {
         color: "Fast",
         prompt: message,
@@ -63,13 +63,8 @@ const sendMessage = async () => {
     </nav>
     <div class="w-full chat-container">
       <div class="messages">
-        <div v-for="(message, index) in messages" :key="index" class="message">
-          <div
-            :class="{
-              'my-message': message.isMine,
-              'other-message': !message.isMine,
-            }"
-          >
+        <div v-for="(message, index) in messages" :key="index" class="message" :class="{'my-message': message.isMine, 'other-message': !message.isMine,}">
+          <div>
             {{ message.text }}
           </div>
         </div>
@@ -91,11 +86,14 @@ const sendMessage = async () => {
   margin: auto;
 }
 .messages {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
   overflow-y: auto;
   padding: 16px;
 }
 .message {
+  width: fit-content;
   margin-bottom: 12px;
 }
 .my-message {
