@@ -41,7 +41,7 @@ const sendMessage = async () => {
     const { data: reply } = await useFetch("/api/sixhat", {
       method: "post",
       body: {
-        color: "Fast",
+        color: assistant.value,
         prompt: message,
         threadId: threadId.value,
       },
@@ -54,6 +54,18 @@ const sendMessage = async () => {
     messages.push({ text: reply.value?.replies[0] ?? "", isMine: false });
   }
 };
+
+const messagesRef: Ref<HTMLElement|null> = ref(null);
+watch(messages, () => {
+  nextTick(() => {
+    if (messagesRef.value) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+    }
+  });
+});
+
+const assistants = ['Fast', 'Red', 'Green', 'Blue', 'Black', 'White', 'Yellow'];
+const assistant = ref(assistants[0]);
 </script>
 
 <template>
@@ -62,7 +74,7 @@ const sendMessage = async () => {
       <UVerticalNavigation :links="threads" />
     </nav>
     <div class="w-full chat-container">
-      <div class="messages">
+      <div class="messages" ref="messagesRef">
         <div v-for="(message, index) in messages" :key="index" class="message" :class="{'my-message': message.isMine, 'other-message': !message.isMine,}">
           <div>
             {{ message.text }}
@@ -70,6 +82,7 @@ const sendMessage = async () => {
         </div>
       </div>
       <div class="input-area flex justify-center">
+        <USelect v-model="assistant" :options="assistants" />
         <UInput v-model="newMessage" placeholder="メッセージを入力" />
         <UButton @click="sendMessage">送信</UButton>
       </div>
@@ -82,7 +95,7 @@ const sendMessage = async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
 }
 .messages {
