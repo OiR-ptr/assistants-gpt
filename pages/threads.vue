@@ -6,10 +6,17 @@ definePageMeta({
 const { pushThreads } = useChatThreads();
 const { chatThreads } = storeToRefs(useChatThreads());
 const threads = computed(() => {
-  return chatThreads.value.map((chat) => {
+  return [{
+    label: '新しいチャット',
+    icon: 'i-heroicons-chat-bubble-oval-left',
+    click: async () => {
+      threadId.value = undefined;
+      messages.splice(0, messages.length);
+    },
+  }].concat(chatThreads.value.map((chat) => {
     return {
       label: chat,
-      icon: 'i-heroicons-chat-bubble-oval-left',
+      icon: 'i-heroicons-chat-bubble-oval-left-ellipsis',
       click: async () => {
         threadId.value = chat;
 
@@ -25,7 +32,7 @@ const threads = computed(() => {
         }) ?? []);
       }
     };
-  });
+  }));
 });
 
 const threadId: Ref<string | undefined> = ref(undefined);
