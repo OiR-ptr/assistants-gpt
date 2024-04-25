@@ -82,8 +82,8 @@ const assistant = ref(assistants[0]);
         </div>
       </div>
       <div class="input-area flex justify-center">
-        <USelect v-model="assistant" :options="assistants" />
-        <UInput v-model="newMessage" placeholder="メッセージを入力" />
+        <USelect v-model="assistant" :options="assistants" icon="i-heroicons-at-symbol" class="flex" />
+        <UTextarea v-model="newMessage" :rows="1" autoresize placeholder="メッセージを入力" class="flex-auto" />
         <UButton @click="sendMessage">送信</UButton>
       </div>
     </div>
