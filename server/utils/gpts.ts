@@ -1,5 +1,6 @@
 import { OpenAI } from 'openai';
 import { Run } from 'openai/resources/beta/threads/index.mjs';
+import { getSixHats } from './sixhat';
 
 const config = useRuntimeConfig();
 const openai = new OpenAI({
@@ -62,6 +63,7 @@ const restoreThread = async (threadId: string, limit: number) => {
     if(content.type === 'text') {
       return {
         role: message.role,
+        whois: getSixHats(message.assistant_id),
         text: content.text.value,
       };
     }

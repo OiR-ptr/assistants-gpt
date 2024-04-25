@@ -28,6 +28,7 @@ const threads = computed(() => {
           return {
             text: msg.text,
             isMine: msg.role == "user",
+            otherName: msg.whois,
           };
         }) ?? []);
       }
@@ -37,12 +38,12 @@ const threads = computed(() => {
 
 const threadId: Ref<string | undefined> = ref(undefined);
 const newMessage = ref("");
-const messages: Array<{ text: string; isMine: boolean }> = reactive([]);
+const messages: Array<{ text: string; isMine: boolean; otherName: string|null; }> = reactive([]);
 
 const sendMessage = async () => {
   if (newMessage.value.trim() !== "") {
     const message = newMessage.value;
-    messages.push({ text: message, isMine: true });
+    messages.push({ text: message, isMine: true, otherName: null });
     newMessage.value = "";
 
     const { data: reply } = await useFetch("/api/sixhat", {
@@ -58,7 +59,7 @@ const sendMessage = async () => {
       pushThreads(threadId.value!);
     }
 
-    messages.push({ text: reply.value?.replies[0] ?? "", isMine: false });
+    messages.push({ text: reply.value?.replies[0] ?? "", isMine: false, otherName: assistant.value });
   }
 };
 
@@ -82,11 +83,16 @@ const assistant = ref(assistants[0]);
     </nav>
     <div class="w-full chat-container">
       <div class="messages" ref="messagesRef">
-        <div v-for="(message, index) in messages" :key="index" class="message" :class="{'my-message': message.isMine, 'other-message': !message.isMine,}">
-          <div>
+        <template v-for="(message, index) in messages" :key="index">
+          <div v-if="message.isMine" class="message my-message">
             {{ message.text }}
           </div>
-        </div>
+
+          <div v-else class="message other-message relative">
+            <div class="absolute -top-4" style="-webkit-text-stroke: 0.075em; -webkit-text-stroke-color: aqua;">{{ message.otherName?.length ? '@' + message.otherName : null }}</div>
+            {{ message.text }}
+          </div>
+        </template>
       </div>
       <div class="input-area flex justify-center">
         <USelect v-model="assistant" :options="assistants" icon="i-heroicons-at-symbol" class="flex" />
