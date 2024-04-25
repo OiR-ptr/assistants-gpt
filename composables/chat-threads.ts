@@ -18,7 +18,9 @@ const useChatThreads = defineStore(
         this._threads.push(threadId);
       }
     },
-    persist: true,
+    persist: {
+      storage: persistedState.localStorage,
+    },
   }
 );
 
