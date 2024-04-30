@@ -80,6 +80,8 @@ const reply = async (threadId: string, assistantId: string, prompt: string) => {
 
   let run = await openai.beta.threads.runs.createAndPoll(threadId, {
     assistant_id: assistantId,
+    // max_completion_tokens: 3000,
+    // max_prompt_tokens: 1200
   });
 
   while(true) {
@@ -87,6 +89,7 @@ const reply = async (threadId: string, assistantId: string, prompt: string) => {
 
     if(done.status == "completed") break;
     if(done.status == "requires_action") {
+      console.log(`requires-action`);
       run = await handleRequiresAction(threadId, run);
     }
   }
