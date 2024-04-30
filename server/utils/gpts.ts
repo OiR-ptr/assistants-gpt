@@ -40,6 +40,30 @@ const handleRequiresAction = async (threadId: string, run: Run) => {
       };
     }
 
+    if (tool.function.name === "memory_baton") {
+      const { category, theme, prompt } = JSON.parse(tool.function.arguments);
+      console.log(`[memory_baton]category: ${category}, theme: ${theme}`);
+      console.log(`[memory_baton]prompt: ${prompt}`);
+      return {
+        tool_call_id: tool.id,
+        output: JSON.stringify({
+          result: null,
+        }),
+      }
+    }
+
+    if (tool.function.name === "memory_hold") {
+      const { category, theme, prompt = null } = JSON.parse(tool.function.arguments);
+      console.log(`[memory_hold]category: ${category}, theme: ${theme}`);
+      if(prompt) console.log(`[memory_hold]prompt: ${prompt}`);
+      return {
+        tool_call_id: tool.id,
+        output: JSON.stringify({
+          status: 200,
+        }),
+      }
+    }
+
     return {
       tool_call_id: tool.id,
       output: "FAILED",

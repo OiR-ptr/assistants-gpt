@@ -72,7 +72,7 @@ watch(messages, () => {
   });
 });
 
-const assistants = ['Fast', 'Red', 'Green', 'Blue', 'Black', 'White', 'Yellow'];
+const assistants = ['Fast', 'Red', 'Green', 'Blue', 'Black', 'White', 'Yellow', "Baton"];
 const assistant = ref(assistants[0]);
 </script>
 
