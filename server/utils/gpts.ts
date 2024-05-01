@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 import { Run } from 'openai/resources/beta/threads/index.mjs';
 import { getSixHats } from './sixhat';
+import Nedb from 'nedb';
 
 const config = useRuntimeConfig();
 const openai = new OpenAI({
@@ -27,10 +28,10 @@ const useThread = (thread_id: string) => {
   return openai.beta.threads.retrieve(thread_id);
 };
 
-const handleRequiresAction = async (threadId: string, run: Run) => {
-  const toolOutputs = run?.required_action?.submit_tool_outputs?.tool_calls?.map(tool => {
+const handleRequiresAction = async (threadId: string, run: Run, db: Nedb) => {
+  const toolOutputs = run?.required_action?.submit_tool_outputs?.tool_calls?.map(async tool => {
     if (tool.function.name === "get_weather") {
-      return {
+      return await {
         tool_call_id: tool.id,
         output: JSON.stringify({
           weather: "晴のち曇ところにより雪、夕方から嵐",
@@ -41,22 +42,35 @@ const handleRequiresAction = async (threadId: string, run: Run) => {
     }
 
     if (tool.function.name === "memory_baton") {
-      const { category, theme, prompt } = JSON.parse(tool.function.arguments);
+      const { category, theme } = JSON.parse(tool.function.arguments);
       console.log(`[memory_baton]category: ${category}, theme: ${theme}`);
-      console.log(`[memory_baton]prompt: ${prompt}`);
-      return {
-        tool_call_id: tool.id,
-        output: JSON.stringify({
-          result: null,
-        }),
-      }
+
+      return await new Promise<OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput>((resolve) => {
+        db.find({
+          category,
+          theme,
+        }, (_: any, docs: any) => {
+          console.log(`content: ${docs}`);
+          resolve({
+            tool_call_id: tool.id,
+            output: JSON.stringify(docs),
+          });
+        });
+      });
     }
 
     if (tool.function.name === "memory_hold") {
-      const { category, theme, prompt = null } = JSON.parse(tool.function.arguments);
-      console.log(`[memory_hold]category: ${category}, theme: ${theme}`);
+      const { category, theme, content, prompt = null } = JSON.parse(tool.function.arguments);
+      console.log(`[memory_hold]category: ${category}, theme: ${theme}, content: ${content}`);
       if(prompt) console.log(`[memory_hold]prompt: ${prompt}`);
-      return {
+      db.insert({
+        category,
+        theme,
+        content,
+        prompt, // word2vec用に用例を試す
+      });
+
+      return await {
         tool_call_id: tool.id,
         output: JSON.stringify({
           status: 200,
@@ -64,7 +78,7 @@ const handleRequiresAction = async (threadId: string, run: Run) => {
       }
     }
 
-    return {
+    return await {
       tool_call_id: tool.id,
       output: "FAILED",
     };
@@ -73,7 +87,7 @@ const handleRequiresAction = async (threadId: string, run: Run) => {
   let rerun = run;
   if(0 < toolOutputs.length) {
     rerun = await openai.beta.threads.runs.submitToolOutputsAndPoll(threadId, run.id, {
-      tool_outputs: toolOutputs,
+      tool_outputs: await Promise.all(toolOutputs),
     });
   }
 
@@ -96,7 +110,7 @@ const restoreThread = async (threadId: string, limit: number) => {
   }).reverse();
 }
 
-const reply = async (threadId: string, assistantId: string, prompt: string) => {
+const reply = async (threadId: string, assistantId: string, prompt: string, db: Nedb) => {
   openai.beta.threads.messages.create(threadId, {
     role: "user",
     content: prompt,
@@ -114,7 +128,7 @@ const reply = async (threadId: string, assistantId: string, prompt: string) => {
     if(done.status == "completed") break;
     if(done.status == "requires_action") {
       console.log(`requires-action`);
-      run = await handleRequiresAction(threadId, run);
+      run = await handleRequiresAction(threadId, run, db);
     }
   }
 

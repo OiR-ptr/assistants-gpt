@@ -12,6 +12,8 @@
   "dependencies": {
     "@nuxt/ui": "^2.15.2",
     "@pinia/nuxt": "^0.5.1",
+    "@types/nedb": "^1.8.16",
+    "nedb": "^1.8.0",
     "nuxt": "^3.11.2",
     "openai": "^4.38.2",
     "pinia": "^2.1.7",
