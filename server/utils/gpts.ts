@@ -20,8 +20,28 @@ const useAssistant = (assistant_key: string) => {
   return openai.beta.assistants.retrieve(assistant_key);
 };
 
-const createThread = () => {
-  return openai.beta.threads.create();
+const createThread = async (withVectorDB: boolean = false) => {
+  if(withVectorDB) {
+    const vfile = await openai.files.create({
+      purpose: "assistants",
+      file: new File([new Blob(['{}'], { type: "application/json" })], "attachment.json"),
+    });
+
+    const vstore = await openai.beta.vectorStores.create({
+      name: "Thread-Knowledge",
+      file_ids: [vfile.id],
+    });
+
+    return await openai.beta.threads.create({
+      tool_resources: {
+        file_search: {
+          vector_store_ids: [vstore.id],
+        }
+      }
+    })
+  }
+
+  return await openai.beta.threads.create();
 };
 
 const useThread = (thread_id: string) => {
